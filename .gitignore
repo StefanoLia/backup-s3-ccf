@@ -1,0 +1,17 @@
+# LaTeX Auto generated files
+*.aux
+*.log
+*.toc
+*.gz*
+*.out
+*.bak
+*.lof
+*.lot
+*.bak*
+*.swp
+*.loc
+*.bbl
+*.blg
+*.xml
+# IntelliJ project files
+.idea
