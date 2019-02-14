@@ -15,3 +15,6 @@
 *.xml
 # IntelliJ project files
 .idea
+# keys
+.keys
+.tmp
