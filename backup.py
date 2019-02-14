@@ -9,8 +9,16 @@ aws = {"aws_access_key_id": "", "aws_secret_access_key": "", "aws_session_token"
 
 
 def get_hash(path):
+    """
+    This function returns the hash of some text inside a file
+    :param path: the path of the file with the text inside
+    :return: the hash of the text inside the file
+    """
     with open(path, "r") as f:
-        text = f.readlines()[0]
+        if os.stat(path).st_size == 0:
+            text = ""
+        else:
+            text = f.readlines()[0]
         engine = sha3_256()
         engine.update(text.encode('UTF8'))
         return engine.hexdigest()
@@ -47,12 +55,17 @@ if __name__ == '__main__':
 
     bucket = s3.Bucket(bucket_name)
 
+    if not os.path.exists('tmp'):
+        os.makedirs('tmp')
+
     # print(bucket_name)
 
     # for s3_file in bucket.objects.all():
         # print(s3_file.key)
 
     file_to_upload = []
+
+    # all the files in 'file_dir' directory will be checked
     files_dir = "files"
 
     directory = os.fsencode(files_dir)
@@ -61,14 +74,14 @@ if __name__ == '__main__':
         upload = False
         filename = os.fsdecode(file)
 
-        # bucket.upload_file("files/"+filename, filename)
-
         print('Downloading ' + filename)
 
         try:
+            # download the file in the tmp dir
             bucket.download_file(filename, "tmp/"+filename)
         except ClientError as e:
             if e.response['Error']['Code'] == "404":
+                # if the file is not present we should upload it
                 upload = True
                 file_to_upload.append(filename)
             else:
@@ -76,9 +89,6 @@ if __name__ == '__main__':
         if not upload:
             hash1 = get_hash(files_dir+"/"+filename)
             hash2 = get_hash("tmp/"+filename)
-
-            print(hash1)
-            print(hash2)
 
             if hash1 != hash2:
                 upload = True
